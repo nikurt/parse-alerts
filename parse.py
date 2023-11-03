@@ -105,5 +105,12 @@ for r in resources:
             e = model.get('expr')
             if e:
                 expr.append(e)
+            else:
+                metric_query = model.get("metricQuery")
+                if metric_query:
+                    t = metric_query[0]["metricType"]
+                    f = metric_query[0]["filters"]
+                    assert t and f
+                    expr.append(f"{t}:{f}")
     expr = ':'.join(expr)
     print(f"{r['name']};{r['folder_uid']};{rule['no_data_state']};{rule['exec_err_state']};{url};{ann.get('message')};{labels['pagerduty']};{labels.get('severity')};{expr}")

@@ -11,7 +11,7 @@ def parse_rule(lines):
     i = 0
     while i < len(lines):
         l = lines[i]
-        print(i,len(stack),l)
+        # print(i,len(stack),l)
         parts = [part for part in l.split(' = ', maxsplit = 1)]
         if len(parts) == 2:
             if parts[1] == '{':
@@ -91,15 +91,19 @@ def parse_terraform_file(file_path):
   return resources
 
 resources = parse_terraform_file(sys.argv[1])
+print(f"name,folder_uid,no_data_state,exec_err_state,url,message,pagerduty,severity,expr")
 for r in resources:
-    print(r['group'],r['name'],r['folder_uid'])
-    for rule in r['rule']:
-        print(rule['name'],rule['no_data_state'],rule['exec_err_state'])
-    for annotations in rule['annotations']:
-        print(annotations['__dashboardUid__'],annotations['__panelId__'],annotations.get('message'))
-    for labels in rule['labels']:
-        print(labels['pagerduty'],labels.get('severity'))
+    rule = r['rule'][0]
+    ann = rule['annotations'][0]
+    labels = rule['labels'][0]
+    d = ann['__dashboardUid__']
+    p = ann['__panelId__']
+    url = f"https://nearinc.grafana.net/d/{d}/nayduck?viewPanel={p}".replace('"','')
+    expr = []
     for data in rule['data']:
-        print(data.get('ref_id'), data.get('model'))
         for model in data.get('model'):
-            print(model.get('expression'),model.get('reducer'))
+            e = model.get('expr')
+            if e:
+                expr.append(e)
+    expr = ':'.join(expr)
+    print(f"{r['name']};{r['folder_uid']};{rule['no_data_state']};{rule['exec_err_state']};{url};{ann.get('message')};{labels['pagerduty']};{labels.get('severity')};{expr}")

@@ -91,7 +91,7 @@ def parse_terraform_file(file_path):
   return resources
 
 resources = parse_terraform_file(sys.argv[1])
-print(f"name,folder_uid,no_data_state,exec_err_state,url,message,pagerduty,severity,expr")
+print(f"name;folder_uid;no_data_state;exec_err_state;url;message;pagerduty;severity;expr")
 for r in resources:
     rule = r['rule'][0]
     ann = rule['annotations'][0]
